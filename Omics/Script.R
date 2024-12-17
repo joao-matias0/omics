@@ -108,9 +108,14 @@ write.table(final_count_table, "Fire.txt", sep = "\t", row.names = FALSE, quote 
 data <- final_count_table
 
 #Identifying Pathways
+#BiocManager::install("clusterProfiler")
+#BiocManager::install("enrichplot")
 
-
-
+#load libraries
+library(clusterProfiler)
+library(org.Rn.eg.db) 
+library(enrichplot)
+library(dplyr)
 
 
 
