@@ -37,10 +37,10 @@ count_table <- read.table("count_table.txt", header = TRUE, sep = "\t")
 row_sums <- rowSums(count_table[ , -1])
 
 # Filter out rows where the sum is 0
-filtered_table <- count_table[row_sums != 0, ]
+#filtered_table <- count_table[row_sums != 0, ]
 
 #Filter out rows where the sum is 10
-filtered_table <- count_table[row_sums != 0, ]
+filtered_table <- count_table[row_sums >= 10, ]
 
 # Write the filtered table to a new file
 write.table(filtered_table, "filtered_count_table.txt", sep = "\t", row.names = FALSE, quote = FALSE)
@@ -51,7 +51,7 @@ write.table(filtered_table, "filtered_count_table.txt", sep = "\t", row.names = 
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-BiocManager::install("org.Rn.eg.db")
+#BiocManager::install("org.Rn.eg.db")
 
 # Load required libraries
 library(org.Rn.eg.db)
@@ -71,28 +71,59 @@ common_names <- AnnotationDbi::mapIds(
 )
 
 # Add common names as a new column
-count_table <- count_table %>%
+filtered_count_table <- filtered_count_table %>%
   mutate(CommonName = common_names[Geneid])
 
 # Move the original Geneid column to the last position, if needed
-count_table <- count_table %>%
+filtered_count_table <- filtered_count_table %>%
   relocate(Geneid, .after = last_col())
 
 # Replace Geneid column with CommonName
-count_table <- count_table %>%
-  mutate(Geneid = CommonName) %>%
-  select(-CommonName)
+#filtered_count_table <- filtered_count_table %>%
+#  mutate(Geneid = CommonName) %>%
+#  select(-CommonName)
 
 # Write the updated table to a file
-write.table(count_table, "updated_count_table_with_names.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+write.table(filtered_count_table, "updated_count_table_with_names.txt", sep = "\t", row.names = FALSE, quote = FALSE)
 
 #Remove rows where GENEID is NA or empty
-final_count_table <- count_table[!is.na(count_table$Geneid) & count_table$Geneid != "", ]
+final_count_table <- filtered_count_table[!is.na(filtered_count_table$CommonName) & filtered_count_table$CommonName != "", ]
+final_count_table <- final_count_table[, c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20,19)]
 write.table(final_count_table, "final_count_table.txt", sep = "\t", row.names = FALSE, quote = FALSE)
 
+#Generates new suffix names for repeating genes
 final_count_table[[ncol(final_count_table)]] <- make.names(final_count_table[[ncol(final_count_table)]], unique = TRUE)
 
-# Definir os nomes únicos como row names e remover a última coluna
+#Definir os nomes únicos como row names e remover a última coluna
 rownames(final_count_table) <- final_count_table[[ncol(final_count_table)]]
 final_count_table[[ncol(final_count_table)]] <- NULL
 
+#Write final_count_table
+write.table(final_count_table, "Fire.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+
+#########################################################################################
+####Funtional Enrichment Analysis
+
+#Defining object for the functonal enrichment
+data <- final_count_table
+
+#Identifying Pathways
+
+
+
+
+
+
+# Subset the first 6 columns (excluding row names)
+heatmap_data <- as.matrix(data[, 1:6])
+
+# Optional: Normalize the data (e.g., scale rows)
+heatmap_data <- scale(heatmap_data)
+
+# Create a heatmap
+heatmap(heatmap_data, 
+        main = "Heatmap of First 6 Columns", 
+        xlab = "Samples", 
+        ylab = "Genes", 
+        col = heat.colors(256), 
+        scale = "row")
