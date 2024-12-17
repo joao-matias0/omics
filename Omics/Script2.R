@@ -89,3 +89,10 @@ write.table(count_table, "updated_count_table_with_names.txt", sep = "\t", row.n
 #Remove rows where GENEID is NA or empty
 final_count_table <- count_table[!is.na(count_table$Geneid) & count_table$Geneid != "", ]
 write.table(final_count_table, "final_count_table.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+
+final_count_table[[ncol(final_count_table)]] <- make.names(final_count_table[[ncol(final_count_table)]], unique = TRUE)
+
+# Definir os nomes únicos como row names e remover a última coluna
+rownames(final_count_table) <- final_count_table[[ncol(final_count_table)]]
+final_count_table[[ncol(final_count_table)]] <- NULL
+
