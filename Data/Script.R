@@ -1,4 +1,3 @@
-
   #Script do tratamento dos nossos dados
   
   file1 <- read.table("1-FC_counts.txt", header = TRUE, sep = "\t")
@@ -98,15 +97,9 @@
   #Definir os nomes únicos como row names e remover a última coluna
   rownames(final_count_table) <- final_count_table[[ncol(final_count_table)]]
   final_count_table[[ncol(final_count_table)]] <- NULL
-  
-  #Write final_count_table
-  write.table(final_count_table, "Fire.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-  
-  #########################################################################################
+  #############################################################################
   ####Funtional Enrichment Analysis
-  
-  #Defining object for the functonal enrichment
-  data <- final_count_table
+  ###
   
   #Identifying Pathways
   #BiocManager::install("clusterProfiler")
@@ -118,31 +111,15 @@
   library(enrichplot)
   library(dplyr)
   
-  
-  
-  # Subset the first 6 columns (excluding row names)
-  heatmap_data <- as.matrix(data[, 1:6])
-  
-  # Optional: Normalize the data (e.g., scale rows)
-  heatmap_data <- scale(heatmap_data)
-  
-  # Create a heatmap
-  #heatmap(heatmap_data, 
-         # main = "Heatmap of First 6 Columns", 
-          #xlab = "Samples", 
-         # ylab = "Genes", 
-         # col = heat.colors(256), 
-         # scale = "row")
-  
-  
-  
   # Install required packages if not already installed
-  if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-  if (!requireNamespace("DESeq2", quietly = TRUE)) BiocManager::install("DESeq2")
-  if (!requireNamespace("ggplot2", quietly = TRUE)) BiocManager::install("ggplot2")
-  if (!requireNamespace("ggrepel", quietly = TRUE)) BiocManager::install("ggrepel")
-  if (!requireNamespace("AnnotationDbi", quietly = TRUE)) BiocManager::install("AnnotationDbi")
-  if (!requireNamespace("org.Rn.eg.db", quietly = TRUE)) BiocManager::install("org.Rn.eg.db")
+  if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+  
+  # Uncomment these lines to install missing packages if needed
+  # BiocManager::install("DESeq2")
+  # BiocManager::install("ggplot2")
+  # BiocManager::install("ggrepel")
+  # BiocManager::install("org.Rn.eg.db")
   
   # Load libraries
   library(DESeq2)
@@ -151,102 +128,98 @@
   library(AnnotationDbi)
   library(org.Rn.eg.db)
   
-  # Step 1: Load the final count table
-  final_count_table <- read.table("final_count_table.txt", header = TRUE, sep = "\t")
+  # Step 1: Load the count table
+  # Replace with your file path for the count data
+  count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
   
-  # Step 2: Ensure numeric columns are selected for counts
-  # Remove non-numeric columns (e.g., Geneid, CommonName) if present
-  count_data <- final_count_table[, sapply(final_count_table, is.numeric)]
   
-  # Convert to a matrix
-  count_data <- as.matrix(count_data)
+  # Ensure the count table contains numeric data only
+  count_table <- as.matrix(count_table)
+  count_table[count_table < 0] <- 0  # Replace negative values with zeros
   
-  # Ensure all values are numeric
-  mode(count_data) <- "numeric"
-  
-  # Replace negative values with zeros (if any)
-  count_data[count_data < 0] <- 0
-  
-  # Step 3: Define experimental conditions
+  # Step 2: Define experimental conditions
   # Adjust based on your experiment: first 6 columns are control, next 6 are drug1, last 6 are drug2
   conditions <- factor(c(rep("control", 6), rep("drug1", 6), rep("drug2", 6)))
   
-  # Create metadata (colData)
-  colData <- data.frame(condition = conditions, row.names = colnames(count_data))
+  # Create metadata (colData) for DESeq2
+  colData <- data.frame(condition = conditions, row.names = colnames(count_table))
   
-  # Step 4: Create DESeq2 dataset
-  dds <- DESeqDataSetFromMatrix(countData = count_data, colData = colData, design = ~ condition)
+  # Step 3: Create a DESeq2 dataset
+  dds <- DESeqDataSetFromMatrix(countData = count_table,
+                                colData = colData,
+                                design = ~ condition)
   
-  # Step 5: Run DESeq2 analysis
+  # Step 4: Run differential expression analysis
   dds <- DESeq(dds)
   
-  # Step 6: Define a function to create volcano plots
+  # Function to create volcano plots
   create_volcano_plot <- function(results_df, comparison, output_file) {
-    # Convert DESeqResults to a data frame
+    # Convert DESeqResults to data frame
     results_df <- as.data.frame(results_df)
+    
+    # Add gene IDs
     results_df$Gene <- rownames(results_df)
     
-    # Remove NA values in log2FoldChange and padj
+    # Remove rows with NA values in log2FoldChange or padj
     results_df <- results_df[!is.na(results_df$log2FoldChange) & !is.na(results_df$padj), ]
     
-    # Categorize genes
-    results_df$Category <- "Not significant"
+    # Categorize genes for coloring
+    results_df$Category <- "Not significant"  # Default category
     results_df$Category[results_df$padj < 0.05 & results_df$log2FoldChange > 0] <- "Upregulated"
     results_df$Category[results_df$padj < 0.05 & results_df$log2FoldChange < 0] <- "Downregulated"
     
-    # Identify top genes for labeling
+    # Filter significant genes for labeling (top 10 by |log2FoldChange|)
     top_genes <- results_df %>%
       filter(Category %in% c("Upregulated", "Downregulated")) %>%
       arrange(-abs(log2FoldChange)) %>%
       head(10)
     
-    # Determine valid keytype for mapping
-    valid_keytype <- "ENSEMBL"  # Default keytype; adjust based on your gene IDs
-    if (!all(top_genes$Gene %in% keys(org.Rn.eg.db, keytype = valid_keytype))) {
-      cat("Some gene keys are not valid for keytype:", valid_keytype, "\n")
-      cat("Attempting to map using an alternative keytype: SYMBOL...\n")
-      valid_keytype <- "SYMBOL"  # Switch to SYMBOL if ENSEMBL keys are not valid
-    }
-    
-    # Map gene IDs to common names
+    # Map Ensembl IDs to common gene names (symbols)
     common_names <- AnnotationDbi::mapIds(org.Rn.eg.db,
                                           keys = top_genes$Gene,
                                           column = "SYMBOL",
-                                          keytype = valid_keytype,
+                                          keytype = "ENSEMBL",
                                           multiVals = "first")
     
-    # Add common names to top_genes
+    # Add common names to the top_genes data frame
     top_genes$GeneName <- common_names
+    
+    # If no common name exists, fall back to Ensembl ID
     top_genes$GeneName[is.na(top_genes$GeneName)] <- top_genes$Gene[is.na(top_genes$GeneName)]
     
     # Create the volcano plot
     volcano_plot <- ggplot(results_df, aes(x = log2FoldChange, y = -log10(padj), color = Category)) +
-      geom_point(alpha = 0.8, size = 1.5) +
-      geom_text_repel(data = top_genes, aes(label = GeneName), size = 3, box.padding = 0.5, point.padding = 0.5) +
-      scale_color_manual(values = c("Upregulated" = "red", "Downregulated" = "blue", "Not significant" = "gray")) +
+      geom_point(alpha = 0.8, size = 1.5) +  # Add points
+      geom_text_repel(data = top_genes, 
+                      aes(label = GeneName), 
+                      size = 3, 
+                      box.padding = 0.5, 
+                      point.padding = 0.5) +  # Add labels for top genes
+      scale_color_manual(values = c("Upregulated" = "red", 
+                                    "Downregulated" = "blue", 
+                                    "Not significant" = "gray")) +
       theme_minimal() +
-      labs(title = paste("Volcano Plot:", comparison), x = "Log2 Fold Change", y = "-Log10 Adjusted P-Value") +
+      labs(title = paste("Volcano Plot:", comparison),
+           x = "Log2 Fold Change",
+           y = "-Log10 Adjusted P-Value") +
       theme(legend.title = element_blank())
     
-    # Save the plot
+    # Save the volcano plot to a file
     ggsave(output_file, plot = volcano_plot, width = 8, height = 6, dpi = 300)
     
     # Display the plot
     print(volcano_plot)
   }
   
-  # Step 7: Define comparisons
+  # Step 5: Define comparisons
   comparisons <- list(
-    list(name = "Drug1 vs Control", contrast = c("condition", "drug1", "control"), output = "volcano_plot_drug1_vs_control.png"),
-    list(name = "Drug2 vs Control", contrast = c("condition", "drug2", "control"), output = "volcano_plot_drug2_vs_control.png"),
-    list(name = "Drug1 vs Drug2", contrast = c("condition", "drug1", "drug2"), output = "volcano_plot_drug1_vs_drug2.png")
+    list(name = "Methylone vs Control", contrast = c("condition", "drug1", "control"), output = "volcano_plot_drug1_vs_control.png"),
+    list(name = "MDMA vs Control", contrast = c("condition", "drug2", "control"), output = "volcano_plot_drug2_vs_control.png"),
+    list(name = "Methylone vs MDMA", contrast = c("condition", "drug1", "drug2"), output = "volcano_plot_drug1_vs_drug2.png")
   )
   
-  # Step 8: Run all comparisons and generate volcano plots
+  # Step 6: Run all comparisons and generate volcano plots
   for (comparison in comparisons) {
     results_df <- results(dds, contrast = comparison$contrast)
     create_volcano_plot(results_df, comparison$name, comparison$output)
   }
-  
-  
-  
