@@ -1,4 +1,4 @@
-  #Script do tratamento dos nossos dados
+  #############################Script do tratamento dos nossos dados#####################
   
   file1 <- read.table("1-FC_counts.txt", header = TRUE, sep = "\t")
   file2 <- read.table("2-FC_counts.txt", header = TRUE, sep = "\t")
@@ -97,10 +97,8 @@
   #Definir os nomes únicos como row names e remover a última coluna
   rownames(final_count_table) <- final_count_table[[ncol(final_count_table)]]
   final_count_table[[ncol(final_count_table)]] <- NULL
-  #############################################################################
-  ######################Funtional Enrichment Analysis DESeq2
-  #############################################################################
-  #############Enrichment
+  #############################Funtional Enrichment Analysis DESeq2
+  #############Enrichment Analysis#############
   # Step 1: Load the count table
   # Replace with your file path for the count data
   count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
@@ -162,10 +160,7 @@
   up_reg_mdma <- read.table("upregulated_genes_mdma.txt", header = TRUE, sep = "\t") 
   down_reg_methylone <- read.table("downregulated_genes_methylone.txt", header = TRUE, sep = "\t") 
   down_reg_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, sep = "\t")
-  #########################################################################################
-  ############################pathway analysis#############################################
-  #########################################################################################
-  
+  #############Pathway analysis#############################################
   # Install required packages if not already installed
   if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
   
@@ -276,8 +271,7 @@
   save_results(go_up_methylone, "go_up_methylone_results.csv")
   save_results(go_down_methylone, "go_down_methylone_results.csv")
   
-  #############################################################################
-  #############Volcano Plots
+  #############Volcano Plots###################################################
   ###
   #Identifying Pathways
   #BiocManager::install("clusterProfiler")
