@@ -132,3 +132,5 @@ heatmap(heatmap_data,
         ylab = "Genes", 
         col = heat.colors(256), 
         scale = "row")
+
+
