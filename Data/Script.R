@@ -78,13 +78,13 @@
   filtered_count_table <- filtered_count_table %>%
     relocate(Geneid, .after = last_col())
   
-  # Replace Geneid column with CommonName
+   #Replace Geneid column with CommonName
   #filtered_count_table <- filtered_count_table %>%
   #  mutate(Geneid = CommonName) %>%
   #  select(-CommonName)
   
   # Write the updated table to a file
-  write.table(filtered_count_table, "updated_count_table_with_names.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+  # write.table(filtered_count_table, "updated_count_table_with_names.txt", sep = "\t", row.names = FALSE, quote = FALSE)
   
   #Remove rows where GENEID is NA or empty
   final_count_table <- filtered_count_table[!is.na(filtered_count_table$CommonName) & filtered_count_table$CommonName != "", ]
@@ -98,9 +98,74 @@
   rownames(final_count_table) <- final_count_table[[ncol(final_count_table)]]
   final_count_table[[ncol(final_count_table)]] <- NULL
   #############################################################################
-  ####Funtional Enrichment Analysis
-  ###
+  ######################Funtional Enrichment Analysis DESeq2
+  #############################################################################
+  #############Enrichment
+  # Step 1: Load the count table
+  # Replace with your file path for the count data
+  count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
   
+  # Ensure the count table contains numeric data only
+  count_table <- as.matrix(count_table)
+  count_table[count_table < 0] <- 0  # Replace negative values with zeros
+  
+  # Step 2: Define conditions
+  # Adjust based on your experiment: first 6 columns are control, next 6 are drug1, last 6 are drug2
+  conditions <- factor(c(rep("control", 6), rep("drug1", 6), rep("drug2", 6)))
+  #Drug1= Methylone; Drug2= MDMA
+  
+  # Create metadata (colData) for DESeq2
+  colData <- data.frame(condition = conditions, row.names = colnames(count_table))
+  
+  # Step 3: Create a DESeq2 dataset
+  dds <- DESeqDataSetFromMatrix(countData = count_table,
+                                colData = colData,
+                                design = ~ condition)
+  
+  # Step 4: Run differential expression analysis
+  dds <- DESeq(dds)
+  
+  # Step 5: Get results for Drug1 vs Control
+  res_drug1 <- results(dds, contrast = c("condition", "drug1", "control"))
+  
+  # Get results for Drug2 vs Control
+  res_drug2 <- results(dds, contrast = c("condition", "drug2", "control"))
+  
+  # Step 6: Filter significant genes (adjusted p-value < 0.05)
+  sig_genes_drug1 <- subset(res_drug1, padj < 0.05)
+  sig_genes_drug2 <- subset(res_drug2, padj < 0.05)
+  
+  # Step 7: Separate Upregulated and Downregulated Genes
+  # Methylone
+  upregulated_drug1 <- subset(sig_genes_drug1, log2FoldChange > 0)
+  downregulated_drug1 <- subset(sig_genes_drug1, log2FoldChange < 0)
+  
+  # MDMA
+  upregulated_drug2 <- subset(sig_genes_drug2, log2FoldChange > 0)
+  downregulated_drug2 <- subset(sig_genes_drug2, log2FoldChange < 0)
+  
+  # Step 8: Save Results to Files
+  write.table(as.data.frame(upregulated_drug1), "upregulated_genes_methylone.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+  write.table(as.data.frame(downregulated_drug1), "downregulated_genes_methylone.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+  
+  write.table(as.data.frame(upregulated_drug2), "upregulated_genes_mdma.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+  write.table(as.data.frame(downregulated_drug2), "downregulated_genes_mdma.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+  
+  # Step 9: Print Summary
+  cat("Drug1: Upregulated Genes:", nrow(upregulated_drug1), "\n")
+  cat("Drug1: Downregulated Genes:", nrow(downregulated_drug1), "\n")
+  
+  cat("Drug2: Upregulated Genes:", nrow(upregulated_drug2), "\n")
+  cat("Drug2: Downregulated Genes:", nrow(downregulated_drug2), "\n")
+
+  up_reg_methylone <- read.table("upregulated_genes_methylone.txt") 
+  up_reg_mdma <- read.table("upregulated_genes_mdma.txt", header = TRUE, sep = "\t") 
+  down_reg_methylone <- read.table("downregulated_genes_methylone.txt", header = TRUE, sep = "\t") 
+  down_reg_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, sep = "\t")
+    
+  #############################################################################
+  #############Volcano Plots
+  ###
   #Identifying Pathways
   #BiocManager::install("clusterProfiler")
   #BiocManager::install("enrichplot")
@@ -223,3 +288,4 @@
     results_df <- results(dds, contrast = comparison$contrast)
     create_volcano_plot(results_df, comparison$name, comparison$output)
   }
+  
