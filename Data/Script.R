@@ -1,4 +1,4 @@
-  #############################Script do tratamento dos nossos dados#####################
+  #Script do tratamento dos nossos dados
   
   file1 <- read.table("1-FC_counts.txt", header = TRUE, sep = "\t")
   file2 <- read.table("2-FC_counts.txt", header = TRUE, sep = "\t")
@@ -97,8 +97,10 @@
   #Definir os nomes únicos como row names e remover a última coluna
   rownames(final_count_table) <- final_count_table[[ncol(final_count_table)]]
   final_count_table[[ncol(final_count_table)]] <- NULL
-  #############################Funtional Enrichment Analysis DESeq2
-  #############Enrichment Analysis#############
+  #############################################################################
+  ######################Funtional Enrichment Analysis DESeq2
+  #############################################################################
+  #############Enrichment
   # Step 1: Load the count table
   # Replace with your file path for the count data
   count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
@@ -160,49 +162,46 @@
   up_reg_mdma <- read.table("upregulated_genes_mdma.txt", header = TRUE, sep = "\t") 
   down_reg_methylone <- read.table("downregulated_genes_methylone.txt", header = TRUE, sep = "\t") 
   down_reg_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, sep = "\t")
-  #############Pathway analysis#############################################
-  # Install required packages if not already installed
+  #########################################################################################
+  ############################pathway analysis#############################################
+  #########################################################################################
+  
+  # Load required packages
   if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+  #BiocManager::install(c("clusterProfiler", "org.Rn.eg.db"))
   
-  BiocManager::install(c("clusterProfiler", "org.Rn.eg.db", "enrichplot", "ggplot2"))
-  
-  # Load required libraries
+  # Load libraries
   library(clusterProfiler)
   library(org.Rn.eg.db)
-  library(enrichplot)
-  library(ggplot2)
   
   # Step 1: Load Gene Lists
-  # Load the gene lists from the files (adjust paths as needed)
-  upregulated_mdma <- read.table("upregulated_genes_mdma.txt", header = TRUE, sep = "\t")
-  downregulated_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, sep = "\t")
-  upregulated_methylone <- read.table("upregulated_genes_methylone.txt", header = TRUE, sep = "\t")
-  downregulated_methylone <- read.table("downregulated_genes_methylone.txt", header = TRUE, sep = "\t")
-  
-  # Extract Ensembl IDs
-  upregulated_mdma_ids <- upregulated_mdma$Geneid
-  downregulated_mdma_ids <- downregulated_mdma$Geneid
-  upregulated_methylone_ids <- upregulated_methylone$Geneid
-  downregulated_methylone_ids <- downregulated_methylone$Geneid
-  
-  # Step 2: Convert Ensembl IDs to Entrez IDs
-  # Convert Ensembl IDs to Entrez IDs using org.Rn.eg.db (Rat-specific database)
-  convert_ids <- function(ensembl_ids) {
-    bitr(ensembl_ids, fromType = "ENSEMBL", toType = "ENTREZID", OrgDb = org.Rn.eg.db) %>%
-      na.omit()  # Remove unmapped genes
+  # Define function to read gene lists and extract IDs
+  define_gene_list <- function(file_path) {
+    gene_data <- read.table(file_path, header = TRUE, sep = "\t", skip = 1) # Skip the header
+    return(gene_data[[1]]) # Extract the first column containing gene IDs
   }
   
-  upregulated_mdma_entrez <- convert_ids(upregulated_mdma_ids)$ENTREZID
-  downregulated_mdma_entrez <- convert_ids(downregulated_mdma_ids)$ENTREZID
-  upregulated_methylone_entrez <- convert_ids(upregulated_methylone_ids)$ENTREZID
-  downregulated_methylone_entrez <- convert_ids(downregulated_methylone_ids)$ENTREZID
+  # Read gene lists
+  upregulated_mdma <- define_gene_list("upregulated_genes_mdma.txt")
+  downregulated_mdma <- define_gene_list("downregulated_genes_mdma.txt")
+  upregulated_methylone <- define_gene_list("upregulated_genes_methylone.txt")
+  downregulated_methylone <- define_gene_list("downregulated_genes_methylone.txt")
   
-  # Step 3: Perform KEGG Pathway Enrichment Analysis
-  # KEGG enrichment function
-  perform_kegg <- function(entrez_ids, comparison) {
+  # Step 2: Convert Ensembl IDs to Entrez IDs
+  convert_ids <- function(ensembl_ids) {
+    bitr(ensembl_ids, fromType = "ENSEMBL", toType = "ENTREZID", OrgDb = org.Rn.eg.db)
+  }
+  
+  upregulated_mdma_entrez <- convert_ids(upregulated_mdma)$ENTREZID
+  downregulated_mdma_entrez <- convert_ids(downregulated_mdma)$ENTREZID
+  upregulated_methylone_entrez <- convert_ids(upregulated_methylone)$ENTREZID
+  downregulated_methylone_entrez <- convert_ids(downregulated_methylone)$ENTREZID
+  
+  # Step 3: Perform Enrichment Analysis
+  perform_kegg <- function(entrez_ids) {
     enrichKEGG(
       gene = entrez_ids,
-      organism = "rno",  # Rat KEGG code
+      organism = "rno",
       keyType = "kegg",
       pAdjustMethod = "BH",
       pvalueCutoff = 0.05,
@@ -210,53 +209,38 @@
     )
   }
   
-  # Run KEGG enrichment
-  kegg_up_mdma <- perform_kegg(upregulated_mdma_entrez, "Upregulated MDMA")
-  kegg_down_mdma <- perform_kegg(downregulated_mdma_entrez, "Downregulated MDMA")
-  kegg_up_methylone <- perform_kegg(upregulated_methylone_entrez, "Upregulated Methylone")
-  kegg_down_methylone <- perform_kegg(downregulated_methylone_entrez, "Downregulated Methylone")
-  
-  # Step 4: Perform GO Enrichment Analysis
-  # GO enrichment function
-  perform_go <- function(entrez_ids, comparison) {
+  perform_go <- function(entrez_ids) {
     enrichGO(
       gene = entrez_ids,
       OrgDb = org.Rn.eg.db,
       keyType = "ENTREZID",
-      ont = "BP",  # Options: BP (Biological Process), CC (Cellular Component), MF (Molecular Function)
+      ont = "BP",
       pAdjustMethod = "BH",
       pvalueCutoff = 0.05,
       qvalueCutoff = 0.2
     )
   }
   
+  # Run KEGG enrichment
+  kegg_up_mdma <- perform_kegg(upregulated_mdma_entrez)
+  kegg_down_mdma <- perform_kegg(downregulated_mdma_entrez)
+  kegg_up_methylone <- perform_kegg(upregulated_methylone_entrez)
+  kegg_down_methylone <- perform_kegg(downregulated_methylone_entrez)
+  
   # Run GO enrichment
-  go_up_mdma <- perform_go(upregulated_mdma_entrez, "Upregulated MDMA")
-  go_down_mdma <- perform_go(downregulated_mdma_entrez, "Downregulated MDMA")
-  go_up_methylone <- perform_go(upregulated_methylone_entrez, "Upregulated Methylone")
-  go_down_methylone <- perform_go(downregulated_methylone_entrez, "Downregulated Methylone")
+  go_up_mdma <- perform_go(upregulated_mdma_entrez)
+  go_down_mdma <- perform_go(downregulated_mdma_entrez)
+  go_up_methylone <- perform_go(upregulated_methylone_entrez)
+  go_down_methylone <- perform_go(downregulated_methylone_entrez)
   
-  # Step 5: Visualization
-  # Dot Plot
-  dotplot(kegg_up_mdma, showCategory = 10, title = "KEGG Pathways: Upregulated MDMA")
-  dotplot(kegg_down_mdma, showCategory = 10, title = "KEGG Pathways: Downregulated MDMA")
-  dotplot(kegg_up_methylone, showCategory = 10, title = "KEGG Pathways: Upregulated Methylone")
-  dotplot(kegg_down_methylone, showCategory = 10, title = "KEGG Pathways: Downregulated Methylone")
-  
-  dotplot(go_up_mdma, showCategory = 10, title = "GO Pathways: Upregulated MDMA")
-  dotplot(go_down_mdma, showCategory = 10, title = "GO Pathways: Downregulated MDMA")
-  dotplot(go_up_methylone, showCategory = 10, title = "GO Pathways: Upregulated Methylone")
-  dotplot(go_down_methylone, showCategory = 10, title = "GO Pathways: Downregulated Methylone")
-  
-  # Bar Plot
-  barplot(kegg_up_mdma, showCategory = 10, title = "KEGG Pathways: Upregulated MDMA")
-  barplot(kegg_down_mdma, showCategory = 10, title = "KEGG Pathways: Downregulated MDMA")
-  barplot(kegg_up_methylone, showCategory = 10, title = "KEGG Pathways: Upregulated Methylone")
-  barplot(kegg_down_methylone, showCategory = 10, title = "KEGG Pathways: Downregulated Methylone")
-  
-  # Save the Results
+  # Step 4: Save Results
   save_results <- function(enrichment_result, file_name) {
-    write.csv(as.data.frame(enrichment_result), file = file_name, row.names = FALSE)
+    if (!is.null(enrichment_result)) {
+      write.csv(as.data.frame(enrichment_result)[, c("ID", "Description", "GeneRatio", "p.adjust")], 
+                file = file_name, row.names = FALSE)
+    } else {
+      cat("No significant pathways found for", file_name, "\n")
+    }
   }
   
   # Save KEGG results
@@ -271,7 +255,8 @@
   save_results(go_up_methylone, "go_up_methylone_results.csv")
   save_results(go_down_methylone, "go_down_methylone_results.csv")
   
-  #############Volcano Plots###################################################
+  #############################################################################
+  #############Volcano Plots
   ###
   #Identifying Pathways
   #BiocManager::install("clusterProfiler")
