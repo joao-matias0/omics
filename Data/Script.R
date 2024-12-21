@@ -133,4 +133,257 @@ heatmap(heatmap_data,
         col = heat.colors(256), 
         scale = "row")
 
+# Install and load required libraries
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
 
+# Uncomment these lines to install missing packages if needed
+# BiocManager::install("DESeq2")
+
+library(DESeq2)
+
+# Step 1: Load the count table
+# Replace with your file path for the count data
+count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
+
+# Ensure the count table contains numeric data only
+count_table <- as.matrix(count_table)
+count_table[count_table < 0] <- 0  # Replace negative values with zeros
+
+# Step 2: Define conditions
+# Adjust based on your experiment: first 6 columns are control, next 6 are drug1, last 6 are drug2
+conditions <- factor(c(rep("control", 6), rep("drug1", 6), rep("drug2", 6)))
+
+# Create metadata (colData) for DESeq2
+colData <- data.frame(condition = conditions, row.names = colnames(count_table))
+
+# Step 3: Create a DESeq2 dataset
+dds <- DESeqDataSetFromMatrix(countData = count_table,
+                              colData = colData,
+                              design = ~ condition)
+
+# Step 4: Run differential expression analysis
+dds <- DESeq(dds)
+
+# Step 5: Get results for Drug1 vs Control
+res_drug1 <- results(dds, contrast = c("condition", "drug1", "control"))
+
+# Get results for Drug2 vs Control
+res_drug2 <- results(dds, contrast = c("condition", "drug2", "control"))
+
+# Step 6: Filter significant genes (adjusted p-value < 0.05)
+sig_genes_drug1 <- subset(res_drug1, padj < 0.05)
+sig_genes_drug2 <- subset(res_drug2, padj < 0.05)
+
+# Step 7: Separate Upregulated and Downregulated Genes
+# Drug1
+upregulated_drug1 <- subset(sig_genes_drug1, log2FoldChange > 0)
+downregulated_drug1 <- subset(sig_genes_drug1, log2FoldChange < 0)
+
+# Drug2
+upregulated_drug2 <- subset(sig_genes_drug2, log2FoldChange > 0)
+downregulated_drug2 <- subset(sig_genes_drug2, log2FoldChange < 0)
+
+# Step 8: Save Results to Files
+write.table(as.data.frame(upregulated_drug1), "upregulated_genes_drug1.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+write.table(as.data.frame(downregulated_drug1), "downregulated_genes_drug1.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+
+write.table(as.data.frame(upregulated_drug2), "upregulated_genes_drug2.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+write.table(as.data.frame(downregulated_drug2), "downregulated_genes_drug2.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+
+# Step 9: Print Summary
+cat("Drug1: Upregulated Genes:", nrow(upregulated_drug1), "\n")
+cat("Drug1: Downregulated Genes:", nrow(downregulated_drug1), "\n")
+
+cat("Drug2: Upregulated Genes:", nrow(upregulated_drug2), "\n")
+cat("Drug2: Downregulated Genes:", nrow(downregulated_drug2), "\n")
+
+# Install required packages if not already installed
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+# Uncomment these lines to install missing packages if needed
+# BiocManager::install("DESeq2")
+# BiocManager::install("ggplot2")
+# BiocManager::install("ggrepel")
+# BiocManager::install("org.Rn.eg.db")
+
+# Load libraries
+library(DESeq2)
+library(ggplot2)
+library(ggrepel)
+library(AnnotationDbi)
+library(org.Rn.eg.db)
+
+# Step 1: Load the count table
+# Replace with your file path for the count data
+count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
+
+# Ensure the count table contains numeric data only
+count_table <- as.matrix(count_table)
+count_table[count_table < 0] <- 0  # Replace negative values with zeros
+
+# Step 2: Define experimental conditions
+# Adjust based on your experiment: first 6 columns are control, next 6 are drug1, last 6 are drug2
+conditions <- factor(c(rep("control", 6), rep("drug1", 6), rep("drug2", 6)))
+
+# Create metadata (colData) for DESeq2
+colData <- data.frame(condition = conditions, row.names = colnames(count_table))
+
+# Step 3: Create a DESeq2 dataset
+dds <- DESeqDataSetFromMatrix(countData = count_table,
+                              colData = colData,
+                              design = ~ condition)
+
+# Step 4: Run differential expression analysis
+dds <- DESeq(dds)
+
+# Step 5: Get results for Drug1 vs Control
+res_drug1 <- results(dds, contrast = c("condition", "drug1", "control"))
+
+# Step 6: Convert the DESeqResults object to a data frame
+res_drug1_df <- as.data.frame(res_drug1)
+
+# Add a column for gene IDs (row names)
+res_drug1_df$Gene <- rownames(res_drug1_df)
+
+# Step 7: Categorize genes for coloring
+# Define significant genes (adjusted p-value < 0.05)
+res_drug1_df$Category <- "Not significant"  # Default category
+res_drug1_df$Category[res_drug1_df$padj < 0.05 & res_drug1_df$log2FoldChange > 0] <- "Upregulated"
+res_drug1_df$Category[res_drug1_df$padj < 0.05 & res_drug1_df$log2FoldChange < 0] <- "Downregulated"
+
+# Step 8: Filter significant genes for labeling (top 10 by |log2FoldChange|)
+top_genes <- res_drug1_df %>%
+  filter(Category %in% c("Upregulated", "Downregulated")) %>%
+  arrange(-abs(log2FoldChange)) %>%
+  head(10)
+
+# Map Ensembl IDs to common gene names (symbols)
+common_names <- AnnotationDbi::mapIds(org.Rn.eg.db,
+                                      keys = top_genes$Gene,
+                                      column = "SYMBOL",
+                                      keytype = "ENSEMBL",
+                                      multiVals = "first")
+
+# Add common names to the top_genes data frame
+top_genes$GeneName <- common_names
+
+# If no common name exists, fall back to Ensembl ID
+top_genes$GeneName[is.na(top_genes$GeneName)] <- top_genes$Gene[is.na(top_genes$GeneName)]
+
+# Step 9: Create the volcano plot
+volcano_plot <- ggplot(res_drug1_df, aes(x = log2FoldChange, y = -log10(padj), color = Category)) +
+  geom_point(alpha = 0.8, size = 1.5) +  # Add points
+  geom_text_repel(data = top_genes, 
+                  aes(label = GeneName), 
+                  size = 3, 
+                  box.padding = 0.5, 
+                  point.padding = 0.5) +  # Add labels for top genes
+  scale_color_manual(values = c("Upregulated" = "red", "Downregulated" = "blue", "Not significant" = "gray")) +
+  theme_minimal() +
+  labs(title = "Volcano Plot: Drug1 vs Control",
+       x = "Log2 Fold Change",
+       y = "-Log10 Adjusted P-Value") +
+  theme(legend.title = element_blank())
+
+# Step 10: Save the volcano plot to a file
+ggsave("volcano_plot_drug1_red_blue_gray.png", plot = volcano_plot, width = 8, height = 6, dpi = 300)
+
+# Step 11: Display the plot
+print(volcano_plot)
+
+# Install required packages if not already installed
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+# Uncomment these lines to install missing packages if needed
+# BiocManager::install("DESeq2")
+# BiocManager::install("ggplot2")
+# BiocManager::install("ggrepel")
+# BiocManager::install("org.Rn.eg.db")
+
+# Load libraries
+library(DESeq2)
+library(ggplot2)
+library(ggrepel)
+library(AnnotationDbi)
+library(org.Rn.eg.db)
+
+# Step 1: Load the count table
+# Replace with your file path for the count data
+count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
+
+# Ensure the count table contains numeric data only
+count_table <- as.matrix(count_table)
+count_table[count_table < 0] <- 0  # Replace negative values with zeros
+
+# Step 2: Define experimental conditions
+# Adjust based on your experiment: first 6 columns are control, next 6 are drug1, last 6 are drug2
+conditions <- factor(c(rep("control", 6), rep("drug1", 6), rep("drug2", 6)))
+
+# Create metadata (colData) for DESeq2
+colData <- data.frame(condition = conditions, row.names = colnames(count_table))
+
+# Step 3: Create a DESeq2 dataset
+dds <- DESeqDataSetFromMatrix(countData = count_table,
+                              colData = colData,
+                              design = ~ condition)
+
+# Step 4: Run differential expression analysis
+dds <- DESeq(dds)
+
+# Step 5: Get results for Drug2 vs Control
+res_drug2 <- results(dds, contrast = c("condition", "drug2", "control"))
+
+# Step 6: Convert the DESeqResults object to a data frame
+res_drug2_df <- as.data.frame(res_drug2)
+
+# Add a column for gene IDs (row names)
+res_drug2_df$Gene <- rownames(res_drug2_df)
+
+# Step 7: Categorize genes for coloring
+# Define significant genes (adjusted p-value < 0.05)
+res_drug2_df$Category <- "Not significant"  # Default category
+res_drug2_df$Category[res_drug2_df$padj < 0.05 & res_drug2_df$log2FoldChange > 0] <- "Upregulated"
+res_drug2_df$Category[res_drug2_df$padj < 0.05 & res_drug2_df$log2FoldChange < 0] <- "Downregulated"
+
+# Step 8: Filter significant genes for labeling (top 10 by |log2FoldChange|)
+top_genes <- res_drug2_df %>%
+  filter(Category %in% c("Upregulated", "Downregulated")) %>%
+  arrange(-abs(log2FoldChange)) %>%
+  head(10)
+
+# Map Ensembl IDs to common gene names (symbols)
+common_names <- AnnotationDbi::mapIds(org.Rn.eg.db,
+                                      keys = top_genes$Gene,
+                                      column = "SYMBOL",
+                                      keytype = "ENSEMBL",
+                                      multiVals = "first")
+
+# Add common names to the top_genes data frame
+top_genes$GeneName <- common_names
+
+# If no common name exists, fall back to Ensembl ID
+top_genes$GeneName[is.na(top_genes$GeneName)] <- top_genes$Gene[is.na(top_genes$GeneName)]
+
+# Step 9: Create the volcano plot
+volcano_plot <- ggplot(res_drug2_df, aes(x = log2FoldChange, y = -log10(padj), color = Category)) +
+  geom_point(alpha = 0.8, size = 1.5) +  # Add points
+  geom_text_repel(data = top_genes, 
+                  aes(label = GeneName), 
+                  size = 3, 
+                  box.padding = 0.5, 
+                  point.padding = 0.5) +  # Add labels for top genes
+  scale_color_manual(values = c("Upregulated" = "red", "Downregulated" = "blue", "Not significant" = "gray")) +
+  theme_minimal() +
+  labs(title = "Volcano Plot: Drug2 vs Control",
+       x = "Log2 Fold Change",
+       y = "-Log10 Adjusted P-Value") +
+  theme(legend.title = element_blank())
+
+# Step 10: Save the volcano plot to a file
+ggsave("volcano_plot_drug2_red_blue_gray.png", plot = volcano_plot, width = 8, height = 6, dpi = 300)
+
+# Step 11: Display the plot
+print(volcano_plot)
