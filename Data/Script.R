@@ -387,3 +387,100 @@ ggsave("volcano_plot_drug2_red_blue_gray.png", plot = volcano_plot, width = 8, h
 
 # Step 11: Display the plot
 print(volcano_plot)
+
+# Install required packages if not already installed
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+# Uncomment these lines to install missing packages if needed
+# BiocManager::install("DESeq2")
+# BiocManager::install("ggplot2")
+# BiocManager::install("ggrepel")
+# BiocManager::install("org.Rn.eg.db")
+
+# Load libraries
+library(DESeq2)
+library(ggplot2)
+library(ggrepel)
+library(AnnotationDbi)
+library(org.Rn.eg.db)
+
+# Step 1: Load the count table
+# Replace with your file path for the count data
+count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
+
+# Ensure the count table contains numeric data only
+count_table <- as.matrix(count_table)
+count_table[count_table < 0] <- 0  # Replace negative values with zeros
+
+# Step 2: Define experimental conditions
+# Adjust based on your experiment: first 6 columns are control, next 6 are drug1, last 6 are drug2
+conditions <- factor(c(rep("control", 6), rep("drug1", 6), rep("drug2", 6)))
+
+# Create metadata (colData) for DESeq2
+colData <- data.frame(condition = conditions, row.names = colnames(count_table))
+
+# Step 3: Create a DESeq2 dataset
+dds <- DESeqDataSetFromMatrix(countData = count_table,
+                              colData = colData,
+                              design = ~ condition)
+
+# Step 4: Run differential expression analysis
+dds <- DESeq(dds)
+
+# Step 5: Get results for Drug1 vs Drug2
+res_drug1_vs_drug2 <- results(dds, contrast = c("condition", "drug1", "drug2"))
+
+# Step 6: Convert the DESeqResults object to a data frame
+res_drug1_vs_drug2_df <- as.data.frame(res_drug1_vs_drug2)
+
+# Add a column for gene IDs (row names)
+res_drug1_vs_drug2_df$Gene <- rownames(res_drug1_vs_drug2_df)
+
+# Step 7: Categorize genes for coloring
+# Define significant genes (adjusted p-value < 0.05)
+res_drug1_vs_drug2_df$Category <- "Not significant"  # Default category
+res_drug1_vs_drug2_df$Category[res_drug1_vs_drug2_df$padj < 0.05 & res_drug1_vs_drug2_df$log2FoldChange > 0] <- "Upregulated (Drug1 > Drug2)"
+res_drug1_vs_drug2_df$Category[res_drug1_vs_drug2_df$padj < 0.05 & res_drug1_vs_drug2_df$log2FoldChange < 0] <- "Downregulated (Drug1 < Drug2)"
+
+# Step 8: Filter significant genes for labeling (top 10 by |log2FoldChange|)
+top_genes <- res_drug1_vs_drug2_df %>%
+  filter(Category %in% c("Upregulated (Drug1 > Drug2)", "Downregulated (Drug1 < Drug2)")) %>%
+  arrange(-abs(log2FoldChange)) %>%
+  head(10)
+
+# Map Ensembl IDs to common gene names (symbols)
+common_names <- AnnotationDbi::mapIds(org.Rn.eg.db,
+                                      keys = top_genes$Gene,
+                                      column = "SYMBOL",
+                                      keytype = "ENSEMBL",
+                                      multiVals = "first")
+
+# Add common names to the top_genes data frame
+top_genes$GeneName <- common_names
+
+# If no common name exists, fall back to Ensembl ID
+top_genes$GeneName[is.na(top_genes$GeneName)] <- top_genes$Gene[is.na(top_genes$GeneName)]
+
+# Step 9: Create the volcano plot
+volcano_plot <- ggplot(res_drug1_vs_drug2_df, aes(x = log2FoldChange, y = -log10(padj), color = Category)) +
+  geom_point(alpha = 0.8, size = 1.5) +  # Add points
+  geom_text_repel(data = top_genes, 
+                  aes(label = GeneName), 
+                  size = 3, 
+                  box.padding = 0.5, 
+                  point.padding = 0.5) +  # Add labels for top genes
+  scale_color_manual(values = c("Upregulated (Drug1 > Drug2)" = "red", 
+                                "Downregulated (Drug1 < Drug2)" = "blue", 
+                                "Not significant" = "gray")) +
+  theme_minimal() +
+  labs(title = "Volcano Plot: Drug1 vs Drug2",
+       x = "Log2 Fold Change",
+       y = "-Log10 Adjusted P-Value") +
+  theme(legend.title = element_blank())
+
+# Step 10: Save the volcano plot to a file
+ggsave("volcano_plot_drug1_vs_drug2_red_blue_gray.png", plot = volcano_plot, width = 8, height = 6, dpi = 300)
+
+# Step 11: Display the plot
+print(volcano_plot)
