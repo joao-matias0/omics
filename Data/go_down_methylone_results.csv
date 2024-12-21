@@ -1,0 +1,39 @@
+"ID","Description","GeneRatio","p.adjust"
+"GO:0006631","fatty acid metabolic process","11/69",0.00117630657088778
+"GO:1905395","response to flavonoid","3/69",0.0099463322951881
+"GO:0016054","organic acid catabolic process","7/69",0.0143379577332266
+"GO:0046395","carboxylic acid catabolic process","7/69",0.0143379577332266
+"GO:0007584","response to nutrient","8/69",0.0143379577332266
+"GO:0046322","negative regulation of fatty acid oxidation","3/69",0.0143379577332266
+"GO:0046889","positive regulation of lipid biosynthetic process","5/69",0.0169650420237025
+"GO:0019395","fatty acid oxidation","5/69",0.0169650420237025
+"GO:0019216","regulation of lipid metabolic process","8/69",0.0174814763956624
+"GO:0034440","lipid oxidation","5/69",0.018575154791888
+"GO:0072330","monocarboxylic acid biosynthetic process","6/69",0.025950113765904
+"GO:0046394","carboxylic acid biosynthetic process","7/69",0.0260156158060987
+"GO:0016053","organic acid biosynthetic process","7/69",0.0260156158060987
+"GO:0046890","regulation of lipid biosynthetic process","6/69",0.0260156158060987
+"GO:0030500","regulation of bone mineralization","4/69",0.0347297152302014
+"GO:0045834","positive regulation of lipid metabolic process","5/69",0.0347297152302014
+"GO:0048041","focal adhesion assembly","4/69",0.0351938526360969
+"GO:0006633","fatty acid biosynthetic process","5/69",0.0366593181913529
+"GO:0044282","small molecule catabolic process","7/69",0.0366593181913529
+"GO:0006637","acyl-CoA metabolic process","4/69",0.0366593181913529
+"GO:0035383","thioester metabolic process","4/69",0.0366593181913529
+"GO:0032355","response to estradiol","6/69",0.0366593181913529
+"GO:0014823","response to activity","5/69",0.0366593181913529
+"GO:0007044","cell-substrate junction assembly","4/69",0.0390500561656402
+"GO:0045922","negative regulation of fatty acid metabolic process","3/69",0.0417255133284148
+"GO:0150172","regulation of phosphatidylcholine metabolic process","2/69",0.0417255133284148
+"GO:0070167","regulation of biomineral tissue development","4/69",0.0417255133284148
+"GO:0150115","cell-substrate junction organization","4/69",0.0417255133284148
+"GO:0001894","tissue homeostasis","6/69",0.0417255133284148
+"GO:0060249","anatomical structure homeostasis","6/69",0.0417255133284148
+"GO:0046320","regulation of fatty acid oxidation","3/69",0.0417255133284148
+"GO:0050892","intestinal absorption","3/69",0.0417255133284148
+"GO:0071073","positive regulation of phospholipid biosynthetic process","2/69",0.0417255133284148
+"GO:0006575","cellular modified amino acid metabolic process","5/69",0.0417255133284148
+"GO:0001659","temperature homeostasis","5/69",0.0454522699204239
+"GO:0033539","fatty acid beta-oxidation using acyl-CoA dehydrogenase","2/69",0.0467878255105852
+"GO:0019217","regulation of fatty acid metabolic process","4/69",0.0478291193202435
+"GO:0030258","lipid modification","5/69",0.0478291193202435

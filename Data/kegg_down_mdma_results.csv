@@ -1,0 +1,9 @@
+"ID","Description","GeneRatio","p.adjust"
+"rno00280","Valine, leucine and isoleucine degradation","8/175",0.0014572445130457
+"rno01212","Fatty acid metabolism","8/175",0.00158460543548586
+"rno04142","Lysosome","10/175",0.0102936213086823
+"rno00640","Propanoate metabolism","5/175",0.0102936213086823
+"rno00071","Fatty acid degradation","6/175",0.0102936213086823
+"rno00061","Fatty acid biosynthesis","4/175",0.0102936213086823
+"rno04710","Circadian rhythm","5/175",0.0111103994894599
+"rno00650","Butanoate metabolism","4/175",0.0391064437195278
