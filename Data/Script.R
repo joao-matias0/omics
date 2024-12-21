@@ -238,7 +238,7 @@
     }
   }
   
-  # Save KEGG results
+  # Save KEGG results | Bad results!!
   save_results(kegg_up_mdma, "kegg_up_mdma_results.csv")
   save_results(kegg_down_mdma, "kegg_down_mdma_results.csv")
   save_results(kegg_up_methylone, "kegg_up_methylone_results.csv")
@@ -373,4 +373,51 @@
     results_df <- results(dds, contrast = comparison$contrast)
     create_volcano_plot(results_df, comparison$name, comparison$output)
   }
+  
+  
+  
+  ###########################Analysis
+  ##############Common_Pathways_GO#############################################
+  ##DownReg
+  # Load necessary libraries
+  library(dplyr)
+  
+  # Load the GO term data
+  go_mdma <- read.csv("go_down_mdma_results.csv")
+  go_methylone <- read.csv("go_down_methylone_results.csv")
+  
+  # Ensure the GO term column names are consistent
+  # Replace "GO.Term" with the actual column name if it's different
+  colnames(go_mdma) <- make.names(colnames(go_mdma))
+  colnames(go_methylone) <- make.names(colnames(go_methylone))
+  
+  # Find the intersection of GO terms
+  common_go_terms <- intersect(go_mdma$ID, go_methylone$GO.Term)
+  
+  # Save the common GO terms to a CSV file
+  write.csv(common_go_terms, "common_go_terms_down.csv", row.names = FALSE)
+  
+  # Print the results
+  print("Common GO terms found:")
+  print(common_go_terms)
+  
+  ##UpReg
+  # Load the GO term data
+  go_mdma <- read.csv("go_up_mdma_results.csv")
+  go_methylone <- read.csv("go_up_methylone_results.csv")
+  
+  # Ensure the GO term column names are consistent
+  # Replace "GO.Term" with the actual column name if it's different
+  colnames(go_mdma) <- make.names(colnames(go_mdma))
+  colnames(go_methylone) <- make.names(colnames(go_methylone))
+  
+  # Find the intersection of GO terms
+  common_go_terms <- intersect(go_mdma$ID, go_methylone$GO.Term)
+  
+  # Save the common GO terms to a CSV file
+  write.csv(common_go_terms, "common_go_terms_up.csv", row.names = FALSE)
+  
+  # Print the results
+  print("Common GO terms found:")
+  print(common_go_terms)
   
