@@ -1,4 +1,4 @@
-  #Script do tratamento dos nossos dados
+  ################Script do tratamento dos nossos dados##################
   
   file1 <- read.table("1-FC_counts.txt", header = TRUE, sep = "\t")
   file2 <- read.table("2-FC_counts.txt", header = TRUE, sep = "\t")
@@ -97,10 +97,8 @@
   #Definir os nomes únicos como row names e remover a última coluna
   rownames(final_count_table) <- final_count_table[[ncol(final_count_table)]]
   final_count_table[[ncol(final_count_table)]] <- NULL
-  #############################################################################
-  ######################Funtional Enrichment Analysis DESeq2
-  #############################################################################
-  #############Enrichment
+  ######################Funtional Enrichment Analysis DESeq2###################
+  ################Enrichment########################
   # Step 1: Load the count table
   # Replace with your file path for the count data
   count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
@@ -163,8 +161,7 @@
   down_reg_methylone <- read.table("downregulated_genes_methylone.txt", header = TRUE, sep = "\t") 
   down_reg_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, sep = "\t")
     
-  #############################################################################
-  #############Volcano Plots
+  ################Volcano Plots################################################
   ###
   #Identifying Pathways
   #BiocManager::install("clusterProfiler")
@@ -288,4 +285,72 @@
     results_df <- results(dds, contrast = comparison$contrast)
     create_volcano_plot(results_df, comparison$name, comparison$output)
   }
+  
+
+  ################Pathway_Analysis##############################################
+  # Load necessary libraries
+  library(edgeR)
+  library(clusterProfiler)
+  library(org.Rn.eg.db)
+  library(DOSE)
+  
+  # Load data
+  data <- read.table("filtered_count_table.txt", header = TRUE, row.names = 1)
+  
+  # Define groups
+  group <- factor(c(rep("Vehicle", 6), rep("Methylone", 6), rep("MDMA", 6)))
+  
+  # Create DGEList object
+  dge <- DGEList(counts = data, group = group)
+  
+  # Filter lowly expressed genes
+  keep <- filterByExpr(dge)
+  dge <- dge[keep, , keep.lib.sizes = FALSE]
+  
+  # Normalize data
+  dge <- calcNormFactors(dge)
+  
+  # Design matrix and estimate dispersion
+  design <- model.matrix(~group)
+  dge <- estimateDisp(dge, design)
+  
+  # Fit model and perform likelihood ratio test for Methylone vs Vehicle
+  fit <- glmFit(dge, design)
+  lrt <- glmLRT(fit, coef = 2)  # Change coef for other contrasts as needed
+  
+  # Extract significant upregulated genes (adjusted p-value < 0.05 and logFC > 1)
+  upregulated <- lrt$table[lrt$table$FDR < 0.1 & abs(lrt$table$logFC) > 0.5, ]
+  upregulated_genes <- rownames(upregulated)
+  
+  # Convert gene IDs to ENTREZ IDs
+  upregulated_entrez <- bitr(
+    upregulated_genes, 
+    fromType = "ENSEMBL",  # Change to "SYMBOL" or other types if needed
+    toType = "ENTREZID", 
+    OrgDb = org.Rn.eg.db
+  )
+  
+  # Filter out genes that could not be mapped
+  if (nrow(upregulated_entrez) == 0) {
+    stop("No genes could be mapped to ENTREZ IDs. Check input gene IDs.")
+  }
+  
+  # Perform enrichment analysis for KEGG pathways
+  pathway_enrichment <- enrichKEGG(
+    gene          = upregulated_entrez$ENTREZID,
+    organism      = "mmu",  # KEGG organism code for mice
+    pvalueCutoff  = 0.05
+  )
+  
+  # Check if enrichment results are available
+  if (is.null(pathway_enrichment) || nrow(as.data.frame(pathway_enrichment)) == 0) {
+    stop("No enriched pathways found. Check input gene set or parameters.")
+  }
+  
+  # Save the results
+  write.csv(as.data.frame(pathway_enrichment), "Upregulated_Pathways.csv")
+  
+  # Plot the top pathways
+  dotplot(pathway_enrichment) + ggtitle("KEGG Pathway Enrichment")
+  
   
