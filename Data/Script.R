@@ -421,3 +421,56 @@
   print("Common GO terms found:")
   print(common_go_terms)
   
+  ##############Common_Genes###################################################
+  ##DownReg
+  # Load necessary libraries
+  library(dplyr)
+  library(tibble) #needed for rownames_to_collumn
+  
+  # Load the datasets
+  down_gene_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, row.names = 1)
+  down_gene_methylone <- read.table("downregulated_genes_methylone.txt", header = TRUE, row.names = 1)
+  
+  # Convert row names to a column named "GeneID"
+  down_gene_mdma <- down_gene_mdma %>%
+    rownames_to_column(var = "GeneID")
+  
+  down_gene_methylone <- down_gene_methylone %>%
+    rownames_to_column(var = "GeneID")
+  
+  # Find the common GeneIDs
+  common_genes <- intersect(down_gene_mdma$GeneID, down_gene_methylone$GeneID)
+  
+  # Save the common genes to a CSV file
+  write.csv(common_genes, "common_genes_down.csv", row.names = FALSE)
+  
+  # Print the results
+  print("Common GeneIDs found:")
+  print(common_genes)
+  
+  ##UpReg
+  # Load necessary libraries
+  library(dplyr)
+  library(tibble) #needed for rownames_to_collumn
+  
+  # Load the datasets
+  up_gene_mdma <- read.table("upregulated_genes_mdma.txt", header = TRUE, row.names = 1)
+  up_gene_methylone <- read.table("upregulated_genes_methylone.txt", header = TRUE, row.names = 1)
+  
+  # Convert row names to a column named "GeneID"
+  up_gene_mdma <- up_gene_mdma %>%
+    rownames_to_column(var = "GeneID")
+  
+  up_gene_methylone <- up_gene_methylone %>%
+    rownames_to_column(var = "GeneID")
+  
+  # Find the common GeneIDs
+  common_genes <- intersect(up_gene_mdma$GeneID, up_gene_methylone$GeneID)
+  
+  # Save the common genes to a CSV file
+  write.csv(common_genes, "common_genes_up.csv", row.names = FALSE)
+  
+  # Print the results
+  print("Common GeneIDs found:")
+  print(common_genes)
+  
