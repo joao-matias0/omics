@@ -98,7 +98,8 @@
   rownames(final_count_table) <- final_count_table[[ncol(final_count_table)]]
   final_count_table[[ncol(final_count_table)]] <- NULL
   ###########################Funtional Enrichment Analysis DESeq2##############
-  ##############Enrichment_Analysis############################################
+  ##############Differential_Expression_Analysis############################################
+ library(DESeq2)
   # Step 1: Load the count table
   # Replace with your file path for the count data
   count_table <- read.table("filtered_count_table.txt", header = TRUE, sep = "\t", row.names = 1)
