@@ -426,6 +426,7 @@
   # Load necessary libraries
   library(dplyr)
   library(tibble) #needed for rownames_to_collumn
+  library(org.Rn.eg.db)
   
   # Load the datasets
   down_gene_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, row.names = 1)
@@ -439,20 +440,16 @@
     rownames_to_column(var = "GeneID")
   
   # Find the common GeneIDs
-  common_genes <- intersect(down_gene_mdma$GeneID, down_gene_methylone$GeneID)
+  common_genes_down <- intersect(down_gene_mdma$GeneID, down_gene_methylone$GeneID)
   
   # Save the common genes to a CSV file
-  write.csv(common_genes, "common_genes_down.csv", row.names = FALSE)
+  write.csv(common_genes_down, "common_genes_down.csv", row.names = FALSE)
   
   # Print the results
   print("Common GeneIDs found:")
-  print(common_genes)
+  print(common_genes_down)
   
   ##UpReg
-  # Load necessary libraries
-  library(dplyr)
-  library(tibble) #needed for rownames_to_collumn
-  
   # Load the datasets
   up_gene_mdma <- read.table("upregulated_genes_mdma.txt", header = TRUE, row.names = 1)
   up_gene_methylone <- read.table("upregulated_genes_methylone.txt", header = TRUE, row.names = 1)
@@ -465,12 +462,115 @@
     rownames_to_column(var = "GeneID")
   
   # Find the common GeneIDs
-  common_genes <- intersect(up_gene_mdma$GeneID, up_gene_methylone$GeneID)
+  common_genes_up <- intersect(up_gene_mdma$GeneID, up_gene_methylone$GeneID)
   
   # Save the common genes to a CSV file
-  write.csv(common_genes, "common_genes_up.csv", row.names = FALSE)
+  write.csv(common_genes_up, "common_genes_up.csv", row.names = FALSE)
   
   # Print the results
   print("Common GeneIDs found:")
-  print(common_genes)
+  print(common_genes_up)
+  
+  ####
+  ####
+  ##Transform into common names
+  
+  common_names_gene_down <- read.table("common_genes_down.csv", header = TRUE)
+  common_names_gene_up <- read.table("common_genes_up.csv", header = TRUE)
+  
+  common_names_down <- AnnotationDbi::mapIds(
+    org.Rn.eg.db,
+    keys = common_names_gene_down$x,
+    column = "SYMBOL",
+    keytype = "ENSEMBL",
+    multiVals = "first"
+  ) 
+  
+  common_names_up <- AnnotationDbi::mapIds(
+    org.Rn.eg.db,
+    keys = common_names_gene_up$x,
+    column = "SYMBOL",
+    keytype = "ENSEMBL",
+    multiVals = "first"
+  ) 
+  
+  write.csv(common_names_down, "common_genes_down_names.csv", row.names = FALSE)
+  write.csv(common_names_up, "common_genes_up_names.csv", row.names = FALSE)
+  
+  
+  
+  ##############Heatmaps#######################################################
+  ##############Top10_Enriched_terms#######################################################
+  # Load necessary libraries
+  library(ggplot2)
+  library(dplyr)
+  
+  ##Upregulated - MDMA
+  # Load the dataset
+  go_data_up_mdma <- read.csv("go_up_mdma_results.csv", header = TRUE)
+  
+  # Ensure the columns are properly named
+  # Replace "GO.Term", "Description", and "P.value" with actual column names if different
+  colnames(go_data_up_mdma) <- make.names(colnames(go_data_up_mdma))
+  
+  # Create a new column for -log10(P-value)
+  go_data_up_mdma <- go_data_up_mdma %>%
+    mutate(`-log10(P)` = -log10(p.adjust)) %>%
+    arrange(desc(`-log10(P)`))  # Sort by significance
+  
+  # Select the top 10 enriched terms
+  top10_go_up_mdma <- head(go_data_up_mdma, 10)
+  write.csv(top10_go_up_mdma, "top10_enriched_go_up_terms_mdma.csv", row.names = FALSE)
+  
+  #Upregulated - Methylone
+  
+  go_data_up_methylone <- read.csv("go_up_methylone_results.csv", header = TRUE)
+  
+  # Ensure the columns are properly named
+  # Replace "GO.Term", "Description", and "P.value" with actual column names if different
+  colnames(go_data_up_methylone) <- make.names(colnames(go_data_up_methylone))
+  
+  # Create a new column for -log10(P-value)
+  go_data_up_methylone <- go_data_up_methylone %>%
+    mutate(`-log10(P)` = -log10(p.adjust)) %>%
+    arrange(desc(`-log10(P)`))  # Sort by significance
+  
+  # Select the top 10 enriched terms
+  top10_go_up_methylone <- head(go_data_up_methylone, 10)
+  write.csv(top10_go_up_methylone, "top10_enriched_go_up_terms_methylone.csv", row.names = FALSE)
+
+  ##Downregulated - MDMA
+  # Load the dataset
+  go_data_down_mdma <- read.csv("go_down_mdma_results.csv", header = TRUE)
+  
+  # Ensure the columns are properly named
+  # Replace "GO.Term", "Description", and "P.value" with actual column names if different
+  colnames(go_data_down_mdma) <- make.names(colnames(go_data_down_mdma))
+  
+  # Create a new column for -log10(P-value)
+  go_data_down_mdma <- go_data_down_mdma %>%
+    mutate(`-log10(P)` = -log10(p.adjust)) %>%
+    arrange(desc(`-log10(P)`))  # Sort by significance
+  
+  # Select the top 10 enriched terms
+  top10_go_down_mdma <- head(go_data_down_mdma, 10)
+  write.csv(top10_go_down_mdma, "top10_enriched_go_down_terms_mdma.csv", row.names = FALSE)
+  
+  
+  #Downregulated - Methylone
+  # Load the dataset
+  go_data_down_methylone <- read.csv("go_down_methylone_results.csv", header = TRUE)
+  
+  # Ensure the columns are properly named
+  # Replace "GO.Term", "Description", and "P.value" with actual column names if different
+  colnames(go_data_down_methylone) <- make.names(colnames(go_data_down_methylone))
+  
+  # Create a new column for -log10(P-value)
+  go_data_down_methylone <- go_data_down_methylone %>%
+    mutate(`-log10(P)` = -log10(p.adjust)) %>%
+    arrange(desc(`-log10(P)`))  # Sort by significance
+  
+  # Select the top 10 enriched terms
+  top10_go_down_methylone <- head(go_data_down_methylone, 10)
+  write.csv(top10_go_down_methylone, "top10_enriched_go_down_terms_methylone.csv", row.names = FALSE)
   
