@@ -499,3 +499,78 @@
   
   
   
+  ##############Heatmaps#######################################################
+  ##############Top10_Enriched_terms#######################################################
+  # Load necessary libraries
+  library(ggplot2)
+  library(dplyr)
+  
+  ##Upregulated - MDMA
+  # Load the dataset
+  go_data_up_mdma <- read.csv("go_up_mdma_results.csv", header = TRUE)
+  
+  # Ensure the columns are properly named
+  # Replace "GO.Term", "Description", and "P.value" with actual column names if different
+  colnames(go_data_up_mdma) <- make.names(colnames(go_data_up_mdma))
+  
+  # Create a new column for -log10(P-value)
+  go_data_up_mdma <- go_data_up_mdma %>%
+    mutate(`-log10(P)` = -log10(p.adjust)) %>%
+    arrange(desc(`-log10(P)`))  # Sort by significance
+  
+  # Select the top 10 enriched terms
+  top10_go_up_mdma <- head(go_data_up_mdma, 10)
+  write.csv(top10_go_up_mdma, "top10_enriched_go_up_terms_mdma.csv", row.names = FALSE)
+  
+  #Upregulated - Methylone
+  
+  go_data_up_methylone <- read.csv("go_up_methylone_results.csv", header = TRUE)
+  
+  # Ensure the columns are properly named
+  # Replace "GO.Term", "Description", and "P.value" with actual column names if different
+  colnames(go_data_up_methylone) <- make.names(colnames(go_data_up_methylone))
+  
+  # Create a new column for -log10(P-value)
+  go_data_up_methylone <- go_data_up_methylone %>%
+    mutate(`-log10(P)` = -log10(p.adjust)) %>%
+    arrange(desc(`-log10(P)`))  # Sort by significance
+  
+  # Select the top 10 enriched terms
+  top10_go_up_methylone <- head(go_data_up_methylone, 10)
+  write.csv(top10_go_up_methylone, "top10_enriched_go_up_terms_methylone.csv", row.names = FALSE)
+
+  ##Downregulated - MDMA
+  # Load the dataset
+  go_data_down_mdma <- read.csv("go_down_mdma_results.csv", header = TRUE)
+  
+  # Ensure the columns are properly named
+  # Replace "GO.Term", "Description", and "P.value" with actual column names if different
+  colnames(go_data_down_mdma) <- make.names(colnames(go_data_down_mdma))
+  
+  # Create a new column for -log10(P-value)
+  go_data_down_mdma <- go_data_down_mdma %>%
+    mutate(`-log10(P)` = -log10(p.adjust)) %>%
+    arrange(desc(`-log10(P)`))  # Sort by significance
+  
+  # Select the top 10 enriched terms
+  top10_go_down_mdma <- head(go_data_down_mdma, 10)
+  write.csv(top10_go_down_mdma, "top10_enriched_go_down_terms_mdma.csv", row.names = FALSE)
+  
+  
+  #Downregulated - Methylone
+  # Load the dataset
+  go_data_down_methylone <- read.csv("go_down_methylone_results.csv", header = TRUE)
+  
+  # Ensure the columns are properly named
+  # Replace "GO.Term", "Description", and "P.value" with actual column names if different
+  colnames(go_data_down_methylone) <- make.names(colnames(go_data_down_methylone))
+  
+  # Create a new column for -log10(P-value)
+  go_data_down_methylone <- go_data_down_methylone %>%
+    mutate(`-log10(P)` = -log10(p.adjust)) %>%
+    arrange(desc(`-log10(P)`))  # Sort by significance
+  
+  # Select the top 10 enriched terms
+  top10_go_down_methylone <- head(go_data_down_methylone, 10)
+  write.csv(top10_go_down_methylone, "top10_enriched_go_down_terms_methylone.csv", row.names = FALSE)
+  

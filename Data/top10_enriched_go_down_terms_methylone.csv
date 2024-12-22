@@ -1,0 +1,11 @@
+"ID","Description","GeneRatio","p.adjust","-log10(P)"
+"GO:0006631","fatty acid metabolic process","11/69",0.00117630657088778,2.92947947698988
+"GO:1905395","response to flavonoid","3/69",0.0099463322951881,2.00233703559687
+"GO:0016054","organic acid catabolic process","7/69",0.0143379577332266,1.84351270420201
+"GO:0046395","carboxylic acid catabolic process","7/69",0.0143379577332266,1.84351270420201
+"GO:0007584","response to nutrient","8/69",0.0143379577332266,1.84351270420201
+"GO:0046322","negative regulation of fatty acid oxidation","3/69",0.0143379577332266,1.84351270420201
+"GO:0046889","positive regulation of lipid biosynthetic process","5/69",0.0169650420237025,1.77044506023699
+"GO:0019395","fatty acid oxidation","5/69",0.0169650420237025,1.77044506023699
+"GO:0019216","regulation of lipid metabolic process","8/69",0.0174814763956624,1.75742189187251
+"GO:0034440","lipid oxidation","5/69",0.018575154791888,1.73106755845661
