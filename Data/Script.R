@@ -426,6 +426,7 @@
   # Load necessary libraries
   library(dplyr)
   library(tibble) #needed for rownames_to_collumn
+  library(org.Rn.eg.db)
   
   # Load the datasets
   down_gene_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, row.names = 1)
@@ -439,20 +440,16 @@
     rownames_to_column(var = "GeneID")
   
   # Find the common GeneIDs
-  common_genes <- intersect(down_gene_mdma$GeneID, down_gene_methylone$GeneID)
+  common_genes_down <- intersect(down_gene_mdma$GeneID, down_gene_methylone$GeneID)
   
   # Save the common genes to a CSV file
-  write.csv(common_genes, "common_genes_down.csv", row.names = FALSE)
+  write.csv(common_genes_down, "common_genes_down.csv", row.names = FALSE)
   
   # Print the results
   print("Common GeneIDs found:")
-  print(common_genes)
+  print(common_genes_down)
   
   ##UpReg
-  # Load necessary libraries
-  library(dplyr)
-  library(tibble) #needed for rownames_to_collumn
-  
   # Load the datasets
   up_gene_mdma <- read.table("upregulated_genes_mdma.txt", header = TRUE, row.names = 1)
   up_gene_methylone <- read.table("upregulated_genes_methylone.txt", header = TRUE, row.names = 1)
@@ -465,12 +462,40 @@
     rownames_to_column(var = "GeneID")
   
   # Find the common GeneIDs
-  common_genes <- intersect(up_gene_mdma$GeneID, up_gene_methylone$GeneID)
+  common_genes_up <- intersect(up_gene_mdma$GeneID, up_gene_methylone$GeneID)
   
   # Save the common genes to a CSV file
-  write.csv(common_genes, "common_genes_up.csv", row.names = FALSE)
+  write.csv(common_genes_up, "common_genes_up.csv", row.names = FALSE)
   
   # Print the results
   print("Common GeneIDs found:")
-  print(common_genes)
+  print(common_genes_up)
+  
+  ####
+  ####
+  ##Transform into common names
+  
+  common_names_gene_down <- read.table("common_genes_down.csv", header = TRUE)
+  common_names_gene_up <- read.table("common_genes_up.csv", header = TRUE)
+  
+  common_names_down <- AnnotationDbi::mapIds(
+    org.Rn.eg.db,
+    keys = common_names_gene_down$x,
+    column = "SYMBOL",
+    keytype = "ENSEMBL",
+    multiVals = "first"
+  ) 
+  
+  common_names_up <- AnnotationDbi::mapIds(
+    org.Rn.eg.db,
+    keys = common_names_gene_up$x,
+    column = "SYMBOL",
+    keytype = "ENSEMBL",
+    multiVals = "first"
+  ) 
+  
+  write.csv(common_names_down, "common_genes_down_names.csv", row.names = FALSE)
+  write.csv(common_names_up, "common_genes_up_names.csv", row.names = FALSE)
+  
+  
   
