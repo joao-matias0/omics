@@ -130,9 +130,13 @@
   # Get results for Drug2 vs Control
   res_drug2 <- results(dds, contrast = c("condition", "drug2", "control"))
   
+  # Get results for Drug1 vs Drug2
+  res_drug1VSdrug2 <- results(dds, contrast = c("condition", "drug1", "drug2"))
+  
   # Step 6: Filter significant genes (adjusted p-value < 0.05)
   sig_genes_drug1 <- subset(res_drug1, padj < 0.05)
   sig_genes_drug2 <- subset(res_drug2, padj < 0.05)
+  sig_genes_drug1VSdrug2 <- subset(res_drug1VSdrug2, padj < 0.05)
   
   # Step 7: Separate Upregulated and Downregulated Genes
   # Methylone
@@ -143,6 +147,10 @@
   upregulated_drug2 <- subset(sig_genes_drug2, log2FoldChange > 0)
   downregulated_drug2 <- subset(sig_genes_drug2, log2FoldChange < 0)
   
+  # Methylone vs MDMA
+  upregulated_drug1VSDrug2 <- subset(sig_genes_drug1VSdrug2, log2FoldChange > 0)
+  downregulated_drug1VSDrug2 <- subset(sig_genes_drug1VSdrug2, log2FoldChange < 0)
+  
   # Step 8: Save Results to Files
   write.table(as.data.frame(upregulated_drug1), "upregulated_genes_methylone.txt", sep = "\t", row.names = TRUE, quote = FALSE)
   write.table(as.data.frame(downregulated_drug1), "downregulated_genes_methylone.txt", sep = "\t", row.names = TRUE, quote = FALSE)
@@ -150,17 +158,24 @@
   write.table(as.data.frame(upregulated_drug2), "upregulated_genes_mdma.txt", sep = "\t", row.names = TRUE, quote = FALSE)
   write.table(as.data.frame(downregulated_drug2), "downregulated_genes_mdma.txt", sep = "\t", row.names = TRUE, quote = FALSE)
   
+  write.table(as.data.frame(upregulated_drug1VSDrug2), "upregulated_genes_methyloneVSmdma.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+  write.table(as.data.frame(downregulated_drug1VSDrug2), "downregulated_genes_methyloneVSmdma.txt", sep = "\t", row.names = TRUE, quote = FALSE)
+  
   # Step 9: Print Summary
   cat("Drug1: Upregulated Genes:", nrow(upregulated_drug1), "\n")
   cat("Drug1: Downregulated Genes:", nrow(downregulated_drug1), "\n")
   
   cat("Drug2: Upregulated Genes:", nrow(upregulated_drug2), "\n")
   cat("Drug2: Downregulated Genes:", nrow(downregulated_drug2), "\n")
+  
+  cat("Drug1 vs Drug2: Upregulated Genes:", nrow(upregulated_drug1VSDrug2), "\n")
+  cat("Drug1 vs Drug2: Downregulated Genes:", nrow(downregulated_drug1VSDrug2), "\n")
 
   up_reg_methylone <- read.table("upregulated_genes_methylone.txt") 
   up_reg_mdma <- read.table("upregulated_genes_mdma.txt", header = TRUE, sep = "\t") 
   down_reg_methylone <- read.table("downregulated_genes_methylone.txt", header = TRUE, sep = "\t") 
   down_reg_mdma <- read.table("downregulated_genes_mdma.txt", header = TRUE, sep = "\t")
+  
   ##############Pathway analysis###############################################
   # Load required packages
   if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
