@@ -334,11 +334,11 @@
     results_df$Category[results_df$padj < 0.05 & results_df$log2FoldChange > 0] <- "Upregulated"
     results_df$Category[results_df$padj < 0.05 & results_df$log2FoldChange < 0] <- "Downregulated"
     
-    # Filter significant genes for labeling (top 10 by |log2FoldChange|)
+    # Filter significant genes for labeling (top 30 by |log2FoldChange|)
     top_genes <- results_df %>%
       filter(Category %in% c("Upregulated", "Downregulated")) %>%
       arrange(-abs(log2FoldChange)) %>%
-      head(10)
+      head(30)
     
     # Map Ensembl IDs to common gene names (symbols)
     common_names <- AnnotationDbi::mapIds(org.Rn.eg.db,
