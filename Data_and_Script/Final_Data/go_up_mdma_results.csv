@@ -1,0 +1,54 @@
+"ID","Description","GeneRatio","p.adjust"
+"GO:0006457","protein folding","29/426",3.89114068680707e-12
+"GO:0061077","chaperone-mediated protein folding","15/426",4.82526661935445e-08
+"GO:0006458","'de novo' protein folding","12/426",6.91474893065788e-07
+"GO:0051084","'de novo' post-translational protein folding","11/426",3.59711098957165e-06
+"GO:0035966","response to topologically incorrect protein","16/426",4.5303837062977e-05
+"GO:0006986","response to unfolded protein","14/426",0.000191338194856629
+"GO:0009266","response to temperature stimulus","18/426",0.000191338194856629
+"GO:0034976","response to endoplasmic reticulum stress","22/426",0.000191338194856629
+"GO:0051085","chaperone cofactor-dependent protein refolding","8/426",0.000191338194856629
+"GO:0050803","regulation of synapse structure or activity","27/426",0.000350887625510094
+"GO:0042026","protein refolding","7/426",0.00049021878018904
+"GO:0050807","regulation of synapse organization","26/426",0.000686532530602643
+"GO:0009408","response to heat","12/426",0.00137340541018179
+"GO:0031647","regulation of protein stability","23/426",0.00137340541018179
+"GO:0072594","establishment of protein localization to organelle","27/426",0.0017078599059026
+"GO:0042220","response to cocaine","11/426",0.00340342677197772
+"GO:0034504","protein localization to nucleus","22/426",0.00350005688371409
+"GO:0030518","nuclear receptor-mediated steroid hormone signaling pathway","12/426",0.00478270244000678
+"GO:1905897","regulation of response to endoplasmic reticulum stress","10/426",0.00496144028490508
+"GO:0046683","response to organophosphorus","16/426",0.00496144028490508
+"GO:0035967","cellular response to topologically incorrect protein","11/426",0.00652942220934894
+"GO:0014074","response to purine-containing compound","17/426",0.00835422745472474
+"GO:0002931","response to ischemia","10/426",0.00958920083183402
+"GO:0043401","steroid hormone receptor signaling pathway","12/426",0.00958920083183402
+"GO:0006606","protein import into nucleus","14/426",0.00958920083183402
+"GO:0071248","cellular response to metal ion","17/426",0.0100478459697531
+"GO:0099173","postsynapse organization","20/426",0.0105577064940876
+"GO:1903573","negative regulation of response to endoplasmic reticulum stress","7/426",0.0106263277406621
+"GO:0048511","rhythmic process","23/426",0.0114191645414432
+"GO:0051170","import into nucleus","14/426",0.0114191645414432
+"GO:0050821","protein stabilization","15/426",0.0126159382663404
+"GO:0007416","synapse assembly","19/426",0.0126885223017954
+"GO:0034605","cellular response to heat","8/426",0.0127846903319985
+"GO:0051963","regulation of synapse assembly","15/426",0.0127846903319985
+"GO:1902236","negative regulation of endoplasmic reticulum stress-induced intrinsic apoptotic signaling pathway","5/426",0.0131627773617852
+"GO:0043279","response to alkaloid","14/426",0.0133854526665836
+"GO:0061684","chaperone-mediated autophagy","4/426",0.0176954097272369
+"GO:0071383","cellular response to steroid hormone stimulus","17/426",0.0177885626835026
+"GO:0032434","regulation of proteasomal ubiquitin-dependent protein catabolic process","11/426",0.0177885626835026
+"GO:0034620","cellular response to unfolded protein","9/426",0.0242305227952821
+"GO:0051591","response to cAMP","12/426",0.0251700032786719
+"GO:0033144","negative regulation of intracellular steroid hormone receptor signaling pathway","6/426",0.0251700032786719
+"GO:0141193","nuclear receptor-mediated signaling pathway","13/426",0.0251700032786719
+"GO:0035933","glucocorticoid secretion","4/426",0.0268001750554737
+"GO:0042754","negative regulation of circadian rhythm","4/426",0.0268001750554737
+"GO:1901888","regulation of cell junction assembly","18/426",0.0339689267268825
+"GO:0009755","hormone-mediated signaling pathway","14/426",0.0366088211185552
+"GO:0099150","regulation of postsynaptic specialization assembly","5/426",0.0378092923888608
+"GO:2000058","regulation of ubiquitin-dependent protein catabolic process","12/426",0.0378092923888608
+"GO:0030521","androgen receptor signaling pathway","6/426",0.0467088767332906
+"GO:0007623","circadian rhythm","16/426",0.048088218292002
+"GO:0036503","ERAD pathway","9/426",0.0495667009257665
+"GO:0098698","postsynaptic specialization assembly","6/426",0.0495667009257665

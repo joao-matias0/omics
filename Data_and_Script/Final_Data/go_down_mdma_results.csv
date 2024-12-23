@@ -1,0 +1,67 @@
+"ID","Description","GeneRatio","p.adjust"
+"GO:0043603","amide metabolic process","27/330",0.00012359153581761
+"GO:0006790","sulfur compound metabolic process","22/330",0.00028338189756824
+"GO:0006637","acyl-CoA metabolic process","11/330",0.000811340951775031
+"GO:0035383","thioester metabolic process","11/330",0.000811340951775031
+"GO:0006631","fatty acid metabolic process","24/330",0.000930148672663259
+"GO:0006084","acetyl-CoA metabolic process","7/330",0.00347228065321671
+"GO:1903825","organic acid transmembrane transport","13/330",0.00466238490294254
+"GO:0044242","cellular lipid catabolic process","15/330",0.00776610640102704
+"GO:0016054","organic acid catabolic process","15/330",0.00841420755342802
+"GO:0046395","carboxylic acid catabolic process","15/330",0.00841420755342802
+"GO:0002274","myeloid leukocyte activation","16/330",0.00841420755342802
+"GO:0061448","connective tissue development","18/330",0.00841420755342802
+"GO:0035384","thioester biosynthetic process","6/330",0.00841420755342802
+"GO:0071616","acyl-CoA biosynthetic process","6/330",0.00841420755342802
+"GO:0006633","fatty acid biosynthetic process","12/330",0.00841420755342802
+"GO:1905039","carboxylic acid transmembrane transport","12/330",0.00841420755342802
+"GO:0006695","cholesterol biosynthetic process","8/330",0.00845051150553549
+"GO:1902653","secondary alcohol biosynthetic process","8/330",0.00845051150553549
+"GO:0048066","developmental pigmentation","7/330",0.00845051150553549
+"GO:0050931","pigment cell differentiation","6/330",0.0101684814352357
+"GO:0001894","tissue homeostasis","16/330",0.0101684814352357
+"GO:0060249","anatomical structure homeostasis","16/330",0.0101684814352357
+"GO:0016126","sterol biosynthetic process","8/330",0.0110433985505693
+"GO:0043473","pigmentation","9/330",0.0153671202914552
+"GO:0001889","liver development","15/330",0.0180180910606015
+"GO:0072330","monocarboxylic acid biosynthetic process","13/330",0.018790432069273
+"GO:0061008","hepaticobiliary system development","15/330",0.018790432069273
+"GO:0046165","alcohol biosynthetic process","11/330",0.0188283362607726
+"GO:0009062","fatty acid catabolic process","9/330",0.0191245586989336
+"GO:0072329","monocarboxylic acid catabolic process","10/330",0.0191245586989336
+"GO:0043583","ear development","15/330",0.0191245586989336
+"GO:0019216","regulation of lipid metabolic process","18/330",0.0195204737479347
+"GO:0007584","response to nutrient","17/330",0.0195204737479347
+"GO:0006520","amino acid metabolic process","15/330",0.0235916228024565
+"GO:1901617","organic hydroxy compound biosynthetic process","14/330",0.0268542514265714
+"GO:0048512","circadian behavior","7/330",0.0283800909690755
+"GO:0042471","ear morphogenesis","10/330",0.0297617592747458
+"GO:0007622","rhythmic behavior","7/330",0.0346482256695746
+"GO:0055088","lipid homeostasis","11/330",0.0354765351351849
+"GO:0032147","activation of protein kinase activity","7/330",0.035721171386357
+"GO:0007623","circadian rhythm","14/330",0.0373262859275749
+"GO:0006635","fatty acid beta-oxidation","7/330",0.0382353718499229
+"GO:0031333","negative regulation of protein-containing complex assembly","10/330",0.0382353718499229
+"GO:0009083","branched-chain amino acid catabolic process","4/330",0.0382353718499229
+"GO:0016042","lipid catabolic process","16/330",0.0382353718499229
+"GO:0003179","heart valve morphogenesis","6/330",0.0394458905581583
+"GO:0046942","carboxylic acid transport","17/330",0.0394458905581583
+"GO:0001656","metanephros development","8/330",0.0394458905581583
+"GO:0048839","inner ear development","13/330",0.0394458905581583
+"GO:0015849","organic acid transport","17/330",0.0394458905581583
+"GO:0009063","amino acid catabolic process","8/330",0.0394458905581583
+"GO:0032873","negative regulation of stress-activated MAPK cascade","3/330",0.0394458905581583
+"GO:0035646","endosome to melanosome transport","3/330",0.0394458905581583
+"GO:0043476","pigment accumulation","3/330",0.0394458905581583
+"GO:0043482","cellular pigment accumulation","3/330",0.0394458905581583
+"GO:0043485","endosome to pigment granule transport","3/330",0.0394458905581583
+"GO:0048757","pigment granule maturation","3/330",0.0394458905581583
+"GO:0061525","hindgut development","3/330",0.0394458905581583
+"GO:0045598","regulation of fat cell differentiation","10/330",0.0441292592401271
+"GO:0061900","glial cell activation","6/330",0.0441640582053165
+"GO:0046890","regulation of lipid biosynthetic process","12/330",0.0453207545187124
+"GO:0044282","small molecule catabolic process","16/330",0.0464086535407479
+"GO:0070303","negative regulation of stress-activated protein kinase signaling cascade","3/330",0.0477201613216142
+"GO:0106380","purine ribonucleotide salvage","3/330",0.0477201613216142
+"GO:0001822","kidney development","17/330",0.0477201613216142
+"GO:0006749","glutathione metabolic process","6/330",0.0477201613216142

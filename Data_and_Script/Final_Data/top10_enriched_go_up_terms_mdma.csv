@@ -1,0 +1,11 @@
+"ID","Description","GeneRatio","p.adjust","-log10(P)"
+"GO:0006457","protein folding","29/426",3.89114068680707e-12,11.4099230667035
+"GO:0061077","chaperone-mediated protein folding","15/426",4.82526661935445e-08,7.31647868478333
+"GO:0006458","'de novo' protein folding","12/426",6.91474893065788e-07,6.16022358417497
+"GO:0051084","'de novo' post-translational protein folding","11/426",3.59711098957165e-06,5.44404616173254
+"GO:0035966","response to topologically incorrect protein","16/426",4.5303837062977e-05,4.34386501333582
+"GO:0006986","response to unfolded protein","14/426",0.000191338194856629,3.71819832762177
+"GO:0009266","response to temperature stimulus","18/426",0.000191338194856629,3.71819832762177
+"GO:0034976","response to endoplasmic reticulum stress","22/426",0.000191338194856629,3.71819832762177
+"GO:0051085","chaperone cofactor-dependent protein refolding","8/426",0.000191338194856629,3.71819832762177
+"GO:0050803","regulation of synapse structure or activity","27/426",0.000350887625510094,3.45483194745129
